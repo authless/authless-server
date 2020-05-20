@@ -168,8 +168,8 @@ const getPersonRoutes = (app, authlessRouter) => {
           const response = await page.goto(req.query.u, {timeout: 0, waitUntil: 'networkidle2'});
 
           // check for captcha selector and try to bypass if found
-          if (account.checkCaptcha && typeof account.checkCaptcha === 'function') {
-            await account.checkCaptcha()
+          if (account.service.checkCaptcha && typeof account.service.checkCaptcha === 'function') {
+            await account.service.checkCaptcha()
           }
           await page.evaluate(slowScrollToBottom);
           await delay(500);
