@@ -152,9 +152,6 @@ const getPersonRoutes = (app, authlessRouter) => {
 
         const page = await browser.newPage();
         try {
-          if (account.checkCaptcha && typeof account.checkCaptcha === 'function') {
-            await account.checkCaptcha()
-          }
           if (!await account.isAuthenticated(page)) {
             await account.authenticate(page)
           }
@@ -169,6 +166,11 @@ const getPersonRoutes = (app, authlessRouter) => {
           }
           page.on('response', writeToResponse);
           const response = await page.goto(req.query.u, {timeout: 0, waitUntil: 'networkidle2'});
+
+          // check for captcha selector and try to bypass if found
+          if (account.checkCaptcha && typeof account.checkCaptcha === 'function') {
+            await account.checkCaptcha()
+          }
           await page.evaluate(slowScrollToBottom);
           await delay(500);
           if (page.url().includes('login') || page.url().includes('authenticate')) {
