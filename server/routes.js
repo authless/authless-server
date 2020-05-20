@@ -165,7 +165,18 @@ const getPersonRoutes = (app, authlessRouter) => {
             return responses.push(await convertResponseToJson(response));
           }
           page.on('response', writeToResponse);
-          const response = await page.goto(req.query.u, {timeout: 0, waitUntil: 'networkidle2'});
+
+          let gotoOptions = {
+            timeout: 0, 
+            waitUntil: 'networkidle2',
+          }
+          if(req.query.referrer && typeof req.query.referrer === 'string') {
+            gotoOptions['referrer'] = req.query.referrer
+          }
+          const response = await page.goto(
+            req.query.u, 
+            gotoOptions
+          );
 
           // check for captcha selector and try to bypass if found
           if (account.service.checkCaptcha && typeof account.service.checkCaptcha === 'function') {
