@@ -152,7 +152,12 @@ const getPersonRoutes = (app, authlessRouter) => {
 
         const page = await browser.newPage();
         try {
-          if (!await account.isAuthenticated(page)) await account.authenticate(page)
+          if (account.checkCaptcha && typeof account.checkCaptcha === 'function') {
+            await account.checkCaptcha()
+          }
+          if (!await account.isAuthenticated(page)) {
+            await account.authenticate(page)
+          }
 
           switch (await account.isThrottled()) {
             case true: throw new ServerError('Account is throttled', {account});
