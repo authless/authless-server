@@ -169,7 +169,7 @@ const getPersonRoutes = (app, authlessRouter) => {
 
           // check for captcha selector and try to bypass if found
           if (account.service.checkCaptcha && typeof account.service.checkCaptcha === 'function') {
-            await account.service.checkCaptcha()
+            await account.service.checkCaptcha(page)
           }
           await page.evaluate(slowScrollToBottom);
           await delay(500);
