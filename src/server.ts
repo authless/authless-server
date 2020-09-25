@@ -1,4 +1,5 @@
 import * as authless from '@authless/core'
+import * as http from 'http'
 import express, { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { PuppeteerExtraPlugin } from 'puppeteer-extra'
 import { v4 as uuidv4 } from 'uuid'
@@ -29,12 +30,11 @@ export interface IServerConfig {
  * @beta
  */
 export class Server {
-  logger: any
+  domainPathRouter: authless.DomainPathRouter
+  botRouter: authless.BotRouter
   puppeteerParams?: authless.PuppeteerParams
   puppeteerPlugins?: PuppeteerExtraPlugin[]
   proxy?: authless.ProxyConfig
-  domainPathRouter: authless.DomainPathRouter
-  botRouter: authless.BotRouter
 
   /**
    * Create a Authless server instance
@@ -42,14 +42,11 @@ export class Server {
    * @beta
    */
   constructor (config: IServerConfig) {
-    this.domainPathRouter = config.domainPathRouter
     this.botRouter = config.botRouter
+    this.domainPathRouter = config.domainPathRouter
     this.puppeteerParams = config.puppeteerParams
     this.puppeteerPlugins = config.puppeteerPlugins
     this.proxy = config.proxy
-    this.logger = {
-      log: (data) => console.log(data)
-    }
   }
 
   private static ping (expressRequest: ExpressRequest, expressResponse: ExpressResponse): void {
@@ -185,7 +182,7 @@ export class Server {
     await browser.close()
   }
 
-  public run (): void {
+  public run (): http.Server {
     const app = express()
     app.use(express.json())
     app.use(express.urlencoded())
@@ -196,7 +193,7 @@ export class Server {
     app.get('/url', async (req, res) => await this.scrape(req, res))
 
     // start express
-    app.listen(PORT, () => {
+    return app.listen(PORT, () => {
       console.log(`Listening on port ${PORT}`)
     })
   }
